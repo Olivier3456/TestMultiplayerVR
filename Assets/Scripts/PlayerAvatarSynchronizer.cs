@@ -35,15 +35,12 @@ public class PlayerAvatarSynchronizer : NetworkBehaviour
         realHeadTransform = playerTransforms.head;
         realLeftHandTransform = playerTransforms.leftHand;
         realRightHandTransform = playerTransforms.rightHand;
-
-        // NetworkObject networkObject = gameObject.GetComponent<NetworkObject>();
-        // networkObject.Spawn();
     }
 
 
     private void Update()
     {
-        if (!IsSpawned) return; // is this check necessarry?
+        //if (!IsSpawned) return; // is this check necessarry?
         if (!IsOwner) return;
 
         avatarHeadTransform.position = realHeadTransform.position;

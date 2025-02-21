@@ -2302,6 +2302,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lobbyText: {fileID: 1954132979}
+  createLobbyButtonGameObject: {fileID: 252296723}
+  joinLobbyButtonGameObject: {fileID: 1632699642}
   relayManager: {fileID: 1411963039}
 --- !u!4 &2093466065
 Transform:

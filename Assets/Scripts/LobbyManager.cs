@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using TMPro;
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
@@ -24,6 +24,8 @@ public class LobbyManager : MonoBehaviour
 
 
     [SerializeField] private TextMeshProUGUI lobbyText;
+    [SerializeField] private GameObject createLobbyButtonGameObject;
+    [SerializeField] private GameObject joinLobbyButtonGameObject;
 
 
     private bool IsLobbyHost()
@@ -81,7 +83,7 @@ public class LobbyManager : MonoBehaviour
             hostLobby = lobby;
             joinedLobby = hostLobby;
 
-            string log = $"Created Lobby {lobbyName} with game mode: {lobby.Data["Game Mode"].Value}. Max players: {maxPlayers}. Available slots left: {hostLobby.AvailableSlots}. Lobby Id is: {lobby.Id}. Lobby Code is: {lobby.LobbyCode}.";
+            string log = $"Created Lobby {lobbyName}. Max players: {maxPlayers}. Available slots left: {hostLobby.AvailableSlots}. Lobby Id is: {lobby.Id}. Lobby Code is: {lobby.LobbyCode}.";
             Debug.Log(log);
 
             PrintPlayers();
@@ -105,29 +107,6 @@ public class LobbyManager : MonoBehaviour
     }
 
 
-    // public async void JoinLobbyByCode(string lobbyCode)
-    // {
-    //     try
-    //     {
-    //         JoinLobbyByCodeOptions joinLobbyByCodeOptions = new JoinLobbyByCodeOptions
-    //         {
-    //             Player = GetPlayer()
-    //         };
-
-    //         Lobby lobby = await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode, joinLobbyByCodeOptions);
-    //         joinedLobby = lobby;
-
-    //         Debug.Log($"Joined Lobby with code {lobbyCode}.");
-    //         PrintPlayers();
-
-    //     }
-    //     catch (LobbyServiceException e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
-
-
     public async void QuickJoinLobby()
     {
         try
@@ -138,7 +117,6 @@ public class LobbyManager : MonoBehaviour
             };
 
             Lobby lobby = await LobbyService.Instance.QuickJoinLobbyAsync(quickJoinLobbyOptions);
-            // (on peut ajouter à cette fonction des QuickJoinLobbyOptions)
             joinedLobby = lobby;
 
             Debug.Log("Lobby Quick Joined.");
@@ -159,7 +137,7 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"Players in Lobby {joinedLobby.Name} with game mode: {joinedLobby.Data["Game Mode"].Value}.");
+        Debug.Log($"Players in Lobby {joinedLobby.Name}:");
         foreach (Player player in joinedLobby.Players)
         {
             Debug.Log(player.Id + " " + player.Data["PlayerName"].Value);
@@ -169,6 +147,9 @@ public class LobbyManager : MonoBehaviour
 
     private void Update()
     {
+        createLobbyButtonGameObject.SetActive(joinedLobby == null && !GameManager.Instance.IsInGame);
+        joinLobbyButtonGameObject.SetActive(joinedLobby == null && !GameManager.Instance.IsInGame);
+
         HandleLobbyHeartBeat();
         HandleLobbyPollForUpdates();
     }
@@ -202,7 +183,7 @@ public class LobbyManager : MonoBehaviour
             return;
         }
 
-        lobbyText.text = "Joigned lobby!";
+        lobbyText.text = $"Joigned lobby. Players in lobby: {joinedLobby.Players.Count}";
 
         lobbyUpdateTimer -= Time.deltaTime;
 
