@@ -13,7 +13,7 @@ public class PlayerAvatarSynchronizer : NetworkBehaviour
     [SerializeField] private Transform avatarRightHandTransform;
 
 
-    // To hide visual if this is our own avatar.
+    // So we can hide visuals if this is our own avatar.
     [SerializeField] private Transform avatarVisualHeadTransform;
     [SerializeField] private Transform avatarVisualLeftHandTransform;
     [SerializeField] private Transform avatarVisualRightHandTransform;
@@ -21,6 +21,8 @@ public class PlayerAvatarSynchronizer : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        Debug.Log($"Player avatar spawned on network! LocalClientId is {NetworkManager.Singleton.LocalClientId}");
+
         if (NetworkManager.Singleton.LocalClientId == OwnerClientId)
         {
             // This is our own avatar, we don't want to see it. 
