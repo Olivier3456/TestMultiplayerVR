@@ -11,6 +11,14 @@ public class StartGameButton : MonoBehaviour
     {
         startGameButtonGameObject.SetActive(false);
         lobbyManager.OnGameReadyToStart += LobbyManager_OnGameReadyToStart;
+
+        GameManager.Instance.OnNetworkSpawnEvent += GameManager_OnNetworkSpawn;
+    }
+
+    private void GameManager_OnNetworkSpawn(object sender, EventArgs e)
+    {
+        //Debug.Log("Spawned on network, hiding Start game button.");
+        startGameButtonGameObject.SetActive(false);        
     }
 
     private void LobbyManager_OnGameReadyToStart(object sender, EventArgs e)

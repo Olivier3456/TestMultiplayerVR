@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
@@ -10,6 +11,10 @@ public class GameManager : NetworkBehaviour
 
     public bool IsInGame { get; private set; }
 
+
+    public event EventHandler OnNetworkSpawnEvent;
+    public event EventHandler OnNetworkDespawnEvent;
+
     private void Awake()
     {
         if (Instance == null)
@@ -21,6 +26,8 @@ public class GameManager : NetworkBehaviour
             Debug.LogError("Only one instance of GameManager is allowed!");
             Destroy(this);
         }
+
+
     }
 
     public override void OnNetworkSpawn()
@@ -32,11 +39,14 @@ public class GameManager : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         }
+
+        OnNetworkSpawnEvent?.Invoke(this, EventArgs.Empty);
     }
 
     public override void OnNetworkDespawn()
     {
         IsInGame = false;
+        OnNetworkDespawnEvent?.Invoke(this, EventArgs.Empty);
         Debug.Log($"[GameManager] OnNetworkDespawn.");
     }
 
