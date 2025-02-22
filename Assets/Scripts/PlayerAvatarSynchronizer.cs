@@ -23,7 +23,8 @@ public class PlayerAvatarSynchronizer : NetworkBehaviour
     {
         Debug.Log($"Player avatar spawned on network! LocalClientId is {NetworkManager.Singleton.LocalClientId}");
 
-        if (NetworkManager.Singleton.LocalClientId == OwnerClientId)
+        //if (NetworkManager.Singleton.LocalClientId == OwnerClientId)
+        if (IsOwner)    // should be the same
         {
             // This is our own avatar, we don't want to see it. 
             avatarVisualHeadTransform.gameObject.SetActive(false);
