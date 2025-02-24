@@ -9,7 +9,7 @@ public class GameManager : NetworkBehaviour
 
     public static GameManager Instance { get; private set; }
 
-    public bool IsInGame { get; private set; }
+    public bool IsSpawn { get; private set; }
 
 
     public event EventHandler OnNetworkSpawnEvent;
@@ -31,7 +31,7 @@ public class GameManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         Debug.Log($"[GameManager] OnNetworkSpawn: {NetworkManager.Singleton.LocalClientId}.");
-        IsInGame = true;
+        IsSpawn = true;
 
         //if (IsServer)
         {
@@ -43,7 +43,7 @@ public class GameManager : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        IsInGame = false;
+        IsSpawn = false;
         OnNetworkDespawnEvent?.Invoke(this, EventArgs.Empty);
         Debug.Log($"[GameManager] OnNetworkDespawn.");
     }

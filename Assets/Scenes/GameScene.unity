@@ -1579,6 +1579,7 @@ GameObject:
   - component: {fileID: 1499392106}
   - component: {fileID: 1499392105}
   - component: {fileID: 1499392104}
+  - component: {fileID: 1499392109}
   m_Layer: 5
   m_Name: Lobby Canvas
   m_TagString: Untagged
@@ -1690,6 +1691,21 @@ RectTransform:
   m_AnchoredPosition: {x: 3.88, y: 2.2629335}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1499392109
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499392103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29775648d5f9f2a4d9f5c04ed880414d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lobbyText: {fileID: 1954132979}
+  createLobbyButtonGameObject: {fileID: 252296723}
+  joinLobbyButtonGameObject: {fileID: 1632699642}
 --- !u!1 &1553226140
 GameObject:
   m_ObjectHideFlags: 0
@@ -2301,10 +2317,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94efae9f8e2a7a4fa3ac4546eccad89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minPlayersNumberToStartGame: 1
-  lobbyText: {fileID: 1954132979}
-  createLobbyButtonGameObject: {fileID: 252296723}
-  joinLobbyButtonGameObject: {fileID: 1632699642}
+  minPlayersToStartGame: 2
   relayManager: {fileID: 1411963039}
 --- !u!4 &2093466065
 Transform:

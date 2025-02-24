@@ -10,6 +10,8 @@ using UnityEngine;
 
 public class LobbyManager : MonoBehaviour
 {
+    public static LobbyManager Instance { get; private set; }
+
     private Lobby hostLobby;
     private Lobby joinedLobby;
     private float heartBeatTimer = 0f;
@@ -20,16 +22,38 @@ public class LobbyManager : MonoBehaviour
     private const string KEY_START_GAME = "Start Game";
 
 
+    public class LobbyEventArgs : EventArgs
+    {
+        public Lobby lobby;
+    }
+
+
+    public bool HasJoinedRelay => joinedLobby != null;
+
+
+    public event EventHandler<LobbyEventArgs> OnLobbyJoined;
+    public event EventHandler<LobbyEventArgs> OnLobbyPlayersNumberChange;
+    private int lastPlayersCountInLobby = 0;
     public event EventHandler OnGameReadyToStart;
+    public event EventHandler<LobbyEventArgs> OnKickedFromLobby;
 
     private bool readyToStartEventSent;
 
-    [SerializeField, Range(1, 4)] private int minPlayersNumberToStartGame = 1;
+    [SerializeField, Range(1, 4)] private int minPlayersToStartGame = 1;
 
 
-    [SerializeField] private TextMeshProUGUI lobbyText;
-    [SerializeField] private GameObject createLobbyButtonGameObject;
-    [SerializeField] private GameObject joinLobbyButtonGameObject;
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Debug.LogError("Only one instance of LobbyManager is allowed!");
+            Destroy(this);
+        }
+    }
 
 
     private bool IsLobbyHost()
@@ -91,6 +115,8 @@ public class LobbyManager : MonoBehaviour
             Debug.Log(log);
 
             PrintPlayers();
+
+            OnLobbyJoined?.Invoke(this, new LobbyEventArgs() { lobby = lobby });
         }
         catch (LobbyServiceException e)
         {
@@ -125,6 +151,8 @@ public class LobbyManager : MonoBehaviour
 
             Debug.Log("Lobby Quick Joined.");
             PrintPlayers();
+
+            OnLobbyJoined?.Invoke(this, new LobbyEventArgs() { lobby = lobby });
         }
         catch (LobbyServiceException e)
         {
@@ -151,9 +179,6 @@ public class LobbyManager : MonoBehaviour
 
     private void Update()
     {
-        createLobbyButtonGameObject.SetActive(joinedLobby == null && !GameManager.Instance.IsInGame);
-        joinLobbyButtonGameObject.SetActive(joinedLobby == null && !GameManager.Instance.IsInGame);
-
         HandleLobbyHeartBeat();
         HandleLobbyPollForUpdates();
     }
@@ -180,72 +205,96 @@ public class LobbyManager : MonoBehaviour
 
     private async void HandleLobbyPollForUpdates()
     {
-        lobbyText.text = "No lobby joigned";
-
         if (joinedLobby == null)
         {
             return;
         }
 
-        lobbyText.text = $"Joigned lobby. Players in lobby: {joinedLobby.Players.Count}";
-
         lobbyUpdateTimer -= Time.deltaTime;
 
-        if (lobbyUpdateTimer < 0f)
+        if (lobbyUpdateTimer > 0f)
         {
-            // on ne peut pas le faire plus d'une fois par seconde
-            float lobbyUpdateTimerMax = 1.1f;
-            lobbyUpdateTimer = lobbyUpdateTimerMax;
+            return;
+        }
 
-            Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
-            joinedLobby = lobby;
+        // max allowed lobby refresh rate: once per second
+        float lobbyUpdateTimerMax = 1.1f;
+        lobbyUpdateTimer = lobbyUpdateTimerMax;
+
+        Lobby lobby = await LobbyService.Instance.GetLobbyAsync(joinedLobby.Id);
+        joinedLobby = lobby;
 
 
-            if (!IsPlayerInLobby())
+        HandleReadyToStartGameCondition();
+        HandlePlayerKickedPossibility();
+        HandleGameStart();
+        HandleLobbyPlayersCountChange();
+    }
+
+
+    private void HandleReadyToStartGameCondition()
+    {
+        if (readyToStartEventSent) return;
+        if (!IsLobbyHost()) return;
+
+        if (joinedLobby.Players.Count >= minPlayersToStartGame)
+        {
+            Debug.Log("Game Ready to start!");
+            OnGameReadyToStart?.Invoke(this, EventArgs.Empty);
+            readyToStartEventSent = true;
+        }
+    }
+
+
+    private void HandlePlayerKickedPossibility()
+    {
+        if (joinedLobby == null) return;
+        if (IsPlayerInLobby()) return;
+
+        // player was kicked out of this lobby
+        Debug.Log("Kicked from Lobby!");
+
+        OnKickedFromLobby?.Invoke(this, new LobbyEventArgs() { lobby = joinedLobby });
+
+        joinedLobby = null;
+    }
+
+
+    private void HandleGameStart()
+    {
+        if (joinedLobby == null) return;
+
+        if (joinedLobby.Data[KEY_START_GAME].Value == "0") return;
+
+        Debug.Log("Game Started! Will join relay if player is not the Host.");
+
+        if (!IsLobbyHost()) // because lobby host already joined relay: see CreateRelay() in Relay class
+        {
+            Debug.Log("Player is not the Host. Joining relay...");
+            relayManager.JoinRelay(joinedLobby.Data[KEY_START_GAME].Value);
+        }
+        else
+        {
+            Debug.Log("Player is the Host, relay is already joigned.");
+        }
+
+        joinedLobby = null;
+    }
+
+
+    private void HandleLobbyPlayersCountChange()
+    {
+        if (joinedLobby != null)
+        {
+            if (lastPlayersCountInLobby != 0)
             {
-                // Player was kicked out of this lobby.
-                Debug.Log("Kicked from Lobby!");
-
-                //OnKickedFromLobby?.Invoke(this, new LobbyEventArgs { lobby = joinedLobby });
-
-                joinedLobby = null;
-                return;
-            }
-
-
-            // handle ready to start game condition
-            if (!readyToStartEventSent)
-            {
-                if (IsLobbyHost())
+                if (lastPlayersCountInLobby != joinedLobby.Players.Count)
                 {
-                    if (joinedLobby.Players.Count >= minPlayersNumberToStartGame)
-                    {
-                        Debug.Log("Game Ready to start!");
-                        OnGameReadyToStart?.Invoke(this, EventArgs.Empty);
-                        readyToStartEventSent = true;
-                    }
+                    OnLobbyPlayersNumberChange?.Invoke(this, new LobbyEventArgs() { lobby = joinedLobby });
                 }
-            }
-
-
-            // Handle game start
-            if (joinedLobby.Data[KEY_START_GAME].Value != "0")
-            {
-                Debug.Log("Game Started! Will join relay if player is not the Host.");
-
-                if (!IsLobbyHost()) // Because lobby host already joined relay: see CreateRelay() in Relay class
-                {
-                    Debug.Log("Player is not the Host. Joining relay...");
-                    relayManager.JoinRelay(joinedLobby.Data[KEY_START_GAME].Value);
-                }
-                else
-                {
-                    Debug.Log("Player is the Host, relay is already joigned.");
-                }
-
-                joinedLobby = null;
             }
         }
+        lastPlayersCountInLobby = joinedLobby == null ? 0 : joinedLobby.Players.Count;
     }
 
 
@@ -257,7 +306,7 @@ public class LobbyManager : MonoBehaviour
             {
                 if (player.Id == AuthenticationService.Instance.PlayerId)
                 {
-                    // This player is in this lobby
+                    // our player is in this lobby
                     return true;
                 }
             }
