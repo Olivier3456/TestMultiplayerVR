@@ -642,7 +642,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 512437be6262dda4882e28e5f89138c8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lobbyManager: {fileID: 2093466064}
   startGameButtonGameObject: {fileID: 911374953}
 --- !u!1 &688824628
 GameObject:
