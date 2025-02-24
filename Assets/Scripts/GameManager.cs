@@ -26,8 +26,6 @@ public class GameManager : NetworkBehaviour
             Debug.LogError("Only one instance of GameManager is allowed!");
             Destroy(this);
         }
-
-
     }
 
     public override void OnNetworkSpawn()

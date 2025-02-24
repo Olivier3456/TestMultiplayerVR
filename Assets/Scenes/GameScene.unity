@@ -2301,6 +2301,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e94efae9f8e2a7a4fa3ac4546eccad89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  minPlayersNumberToStartGame: 1
   lobbyText: {fileID: 1954132979}
   createLobbyButtonGameObject: {fileID: 252296723}
   joinLobbyButtonGameObject: {fileID: 1632699642}

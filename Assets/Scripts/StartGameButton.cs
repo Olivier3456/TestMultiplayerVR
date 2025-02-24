@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class StartGameButton : MonoBehaviour
 {
@@ -15,14 +16,14 @@ public class StartGameButton : MonoBehaviour
         GameManager.Instance.OnNetworkSpawnEvent += GameManager_OnNetworkSpawn;
     }
 
-    private void GameManager_OnNetworkSpawn(object sender, EventArgs e)
-    {
-        //Debug.Log("Spawned on network, hiding Start game button.");
-        startGameButtonGameObject.SetActive(false);        
-    }
-
     private void LobbyManager_OnGameReadyToStart(object sender, EventArgs e)
     {
         startGameButtonGameObject.SetActive(true);
     }
+
+    private void GameManager_OnNetworkSpawn(object sender, EventArgs e)
+    {
+        //Debug.Log("Spawned on network, hiding Start game button.");
+        startGameButtonGameObject.SetActive(false);
+    }    
 }

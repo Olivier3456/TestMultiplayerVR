@@ -22,6 +22,10 @@ public class LobbyManager : MonoBehaviour
 
     public event EventHandler OnGameReadyToStart;
 
+    private bool readyToStartEventSent;
+
+    [SerializeField, Range(1, 4)] private int minPlayersNumberToStartGame = 1;
+
 
     [SerializeField] private TextMeshProUGUI lobbyText;
     [SerializeField] private GameObject createLobbyButtonGameObject;
@@ -210,12 +214,16 @@ public class LobbyManager : MonoBehaviour
 
 
             // handle ready to start game condition
-            if (IsLobbyHost())
+            if (!readyToStartEventSent)
             {
-                if (joinedLobby.Players.Count == 2)
+                if (IsLobbyHost())
                 {
-                    Debug.Log("Game Ready to start!");
-                    OnGameReadyToStart?.Invoke(this, EventArgs.Empty);
+                    if (joinedLobby.Players.Count >= minPlayersNumberToStartGame)
+                    {
+                        Debug.Log("Game Ready to start!");
+                        OnGameReadyToStart?.Invoke(this, EventArgs.Empty);
+                        readyToStartEventSent = true;
+                    }
                 }
             }
 
