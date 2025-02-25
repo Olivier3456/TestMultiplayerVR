@@ -2,7 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     [SerializeField, Range(1, 4)] private int minPlayerCountToStartGame = 1;
 
@@ -25,9 +25,13 @@ public class GameManager : MonoBehaviour
     }
 
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
-        SessionManager.Instance.OnClientConnected += SessionManager_OnClientConnected;
+        if (IsServer)
+        {
+            // Debug.Log("Game Manager Start Is Server");
+            SessionManager.Instance.OnClientConnected += SessionManager_OnClientConnected;
+        }
     }
 
     private void SessionManager_OnClientConnected(object sender, EventArgs e)
@@ -36,7 +40,14 @@ public class GameManager : MonoBehaviour
 
         if (playersCount >= minPlayerCountToStartGame)
         {
-            OnGameStart?.Invoke(this, EventArgs.Empty);
+            SendOnGameStartEventRpc();
         }
+    }
+
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void SendOnGameStartEventRpc()
+    {
+        OnGameStart?.Invoke(this, EventArgs.Empty);
     }
 }

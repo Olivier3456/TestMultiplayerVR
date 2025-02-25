@@ -32,7 +32,6 @@ public class SessionManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        //Debug.Log($"[GameManager] OnNetworkSpawn: {NetworkManager.Singleton.LocalClientId}.");
         IsSpawn = true;
 
         //if (IsServer)
@@ -40,6 +39,7 @@ public class SessionManager : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         }
 
+        Debug.Log("SessionManager - OnNetworkSpawn");
         OnSessionJoin?.Invoke(this, EventArgs.Empty);
     }
 
@@ -48,7 +48,6 @@ public class SessionManager : NetworkBehaviour
     {
         IsSpawn = false;
         OnSessionQuit?.Invoke(this, EventArgs.Empty);
-        //Debug.Log($"[GameManager] OnNetworkDespawn.");
     }
 
 

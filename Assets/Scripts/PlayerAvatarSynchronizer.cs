@@ -15,7 +15,7 @@ public class PlayerAvatarSynchronizer : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        Debug.Log($"Player avatar spawned on network! LocalClientId is {NetworkManager.Singleton.LocalClientId}");
+        //Debug.Log($"Player avatar spawned on network! LocalClientId is {NetworkManager.Singleton.LocalClientId}");
 
         //if (NetworkManager.Singleton.LocalClientId == OwnerClientId)
         if (IsOwner)    // should be the same

@@ -29,7 +29,7 @@ public class LobbyManager : MonoBehaviour
 
 
     public bool HasJoinedRelay => joinedLobby != null;
-    
+
 
     public event EventHandler<LobbyEventArgs> OnLobbyJoined;
     public event EventHandler<LobbyEventArgs> OnLobbyPlayersNumberChange;
@@ -60,7 +60,6 @@ public class LobbyManager : MonoBehaviour
     {
         if (joinedLobby == null)
         {
-            Debug.Log("IsLobbyHost - Lobby is null!");
             return false;
         }
 
