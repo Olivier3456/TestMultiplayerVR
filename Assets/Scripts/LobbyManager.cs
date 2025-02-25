@@ -94,7 +94,7 @@ public class LobbyManager : MonoBehaviour
         try
         {
             string lobbyName = "TestLobby";
-            int maxPlayers = 4;
+            int maxPlayers = 2;
             CreateLobbyOptions createLobbyOptions = new CreateLobbyOptions
             {
                 IsPrivate = false,

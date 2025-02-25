@@ -15,7 +15,7 @@ public class LobbyUI : MonoBehaviour
         LobbyManager.Instance.OnKickedFromLobby += LobbyManager_OnKickedFromLobby;
         LobbyManager.Instance.OnLobbyPlayersNumberChange += LobbyManager_OnLobbyPlayersNumberChange;
 
-        GameManager.Instance.OnNetworkSpawnEvent += GameManager_OnNetworkSpawnEvent;
+        SessionManager.Instance.OnSessionJoin += SessionManager_OnNetworkSpawnEvent;
     }
 
 
@@ -40,7 +40,7 @@ public class LobbyUI : MonoBehaviour
         lobbyText.text = $"Joigned lobby. Players in lobby: {e.lobby.Players.Count}";
     }
 
-    private void GameManager_OnNetworkSpawnEvent(object sender, EventArgs e)
+    private void SessionManager_OnNetworkSpawnEvent(object sender, EventArgs e)
     {
         createLobbyButtonGameObject.SetActive(false);
         joinLobbyButtonGameObject.SetActive(false);

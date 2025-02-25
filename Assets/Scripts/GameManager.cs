@@ -1,19 +1,15 @@
 using System;
-using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 
-public class GameManager : NetworkBehaviour
+public class GameManager : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI gameText;
+    [SerializeField, Range(1, 4)] private int minPlayerCountToStartGame = 1;
 
     public static GameManager Instance { get; private set; }
 
-    public bool IsSpawn { get; private set; }
+    public event EventHandler OnGameStart;
 
-
-    public event EventHandler OnNetworkSpawnEvent;
-    public event EventHandler OnNetworkDespawnEvent;
 
     private void Awake()
     {
@@ -28,29 +24,19 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkSpawn()
-    {
-        Debug.Log($"[GameManager] OnNetworkSpawn: {NetworkManager.Singleton.LocalClientId}.");
-        IsSpawn = true;
 
-        //if (IsServer)
+    void Start()
+    {
+        SessionManager.Instance.OnClientConnected += SessionManager_OnClientConnected;
+    }
+
+    private void SessionManager_OnClientConnected(object sender, EventArgs e)
+    {
+        int playersCount = NetworkManager.Singleton.ConnectedClientsList.Count;
+
+        if (playersCount >= minPlayerCountToStartGame)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+            OnGameStart?.Invoke(this, EventArgs.Empty);
         }
-
-        OnNetworkSpawnEvent?.Invoke(this, EventArgs.Empty);
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        IsSpawn = false;
-        OnNetworkDespawnEvent?.Invoke(this, EventArgs.Empty);
-        Debug.Log($"[GameManager] OnNetworkDespawn.");
-    }
-
-
-    private void NetworkManager_OnClientConnectedCallback(ulong obj)
-    {
-        gameText.text = $"Game started. {NetworkManager.Singleton.ConnectedClientsList.Count} player(s) in the game.";
     }
 }
